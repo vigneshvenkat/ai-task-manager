@@ -94,7 +94,7 @@ export default function Sidebar({
             <button
               key={id}
               onClick={() => onViewChange(id)}
-              className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
                 view === id
                   ? 'bg-amber-600/15 text-amber-300'
                   : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60'
@@ -121,7 +121,7 @@ export default function Sidebar({
               <li key={item.value}>
                 <button
                   onClick={() => onFilterStatus(item.value)}
-                  className={`w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg text-sm transition-colors ${
+                  className={`w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg text-sm transition-colors cursor-pointer ${
                     active
                       ? 'bg-zinc-800 text-zinc-100'
                       : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'
@@ -158,7 +158,7 @@ export default function Sidebar({
               <li key={item.value}>
                 <button
                   onClick={() => onFilterPriority(item.value)}
-                  className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-sm transition-colors ${
+                  className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-sm transition-colors cursor-pointer ${
                     active
                       ? 'bg-zinc-800 text-zinc-100'
                       : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'
@@ -176,10 +176,6 @@ export default function Sidebar({
         </ul>
       </section>}
 
-      {/* Footer */}
-      <div className="mt-auto px-5 py-4 border-t border-zinc-800/80">
-        <p className="text-xs text-zinc-700 leading-relaxed">Powered by Claude AI</p>
-      </div>
     </aside>
   );
 }
