@@ -20,7 +20,7 @@ interface ModalState {
 }
 
 export default function HomePage() {
-  const { tasks, loading, error, createTask, updateTask, deleteTask, refreshTasks, clearError } = useTasks();
+  const { tasks, loading, error, createTask, updateTask, deleteTask, clearError } = useTasks();
 
   const [view, setView] = useState<ViewMode>('dashboard');
   const [filterStatus, setFilterStatus] = useState<TaskStatus | 'all'>('all');
@@ -112,8 +112,6 @@ export default function HomePage() {
       <Header
         onNewTask={openCreate}
         onSearch={setSearchQuery}
-        onRefresh={refreshTasks}
-        loading={loading}
       />
 
       <div className="flex flex-1 overflow-hidden">

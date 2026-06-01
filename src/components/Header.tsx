@@ -5,11 +5,9 @@ import { useState } from 'react';
 interface HeaderProps {
   onNewTask: () => void;
   onSearch: (query: string) => void;
-  onRefresh: () => void;
-  loading: boolean;
 }
 
-export default function Header({ onNewTask, onSearch, onRefresh, loading }: HeaderProps) {
+export default function Header({ onNewTask, onSearch }: HeaderProps) {
   const [searchValue, setSearchValue] = useState('');
 
   const handleSearch = (value: string) => {
@@ -65,20 +63,6 @@ export default function Header({ onNewTask, onSearch, onRefresh, loading }: Head
 
       {/* Right side */}
       <div className="ml-auto flex items-center gap-2">
-        <button
-          onClick={onRefresh}
-          disabled={loading}
-          title="Refresh"
-          className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors disabled:opacity-40"
-        >
-          <svg
-            className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
-            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h5M20 20v-5h-5M4.07 15.93A8 8 0 1 1 20 12" />
-          </svg>
-        </button>
-
         <button
           onClick={() => onNewTask()}
           className="flex items-center gap-1.5 h-8 px-3.5 bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium rounded-lg transition-colors shadow-sm shadow-amber-900/30"
