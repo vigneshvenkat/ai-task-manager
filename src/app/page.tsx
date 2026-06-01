@@ -1,65 +1,252 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useMemo, useState } from 'react';
+import type { Task, TaskPriority, TaskStatus, ViewMode, CreateTaskInput, TaskStats } from '@/types';
+import { useTasks } from '@/hooks/useTasks';
+import Header from '@/components/Header';
+import Sidebar from '@/components/Sidebar';
+import StatsBar from '@/components/StatsBar';
+import TaskBoard from '@/components/TaskBoard';
+import TaskList from '@/components/TaskList';
+import TaskModal from '@/components/TaskModal';
+import Dashboard from '@/components/Dashboard';
+import Calendar from '@/components/Calendar';
+
+interface ModalState {
+  open: boolean;
+  mode: 'create' | 'edit';
+  task?: Task;
+  initialStatus?: TaskStatus;
+}
+
+export default function HomePage() {
+  const { tasks, loading, error, createTask, updateTask, deleteTask, refreshTasks, clearError } = useTasks();
+
+  const [view, setView] = useState<ViewMode>('dashboard');
+  const [filterStatus, setFilterStatus] = useState<TaskStatus | 'all'>('all');
+  const [filterPriority, setFilterPriority] = useState<TaskPriority | 'all'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [modal, setModal] = useState<ModalState>({ open: false, mode: 'create' });
+
+  // Filtered task list
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      if (filterStatus !== 'all' && task.status !== filterStatus) return false;
+      if (filterPriority !== 'all' && task.priority !== filterPriority) return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        return (
+          task.title.toLowerCase().includes(q) ||
+          task.description?.toLowerCase().includes(q) ||
+          task.tags.some((t) => t.toLowerCase().includes(q)) ||
+          task.assignee?.toLowerCase().includes(q)
+        );
+      }
+      return true;
+    });
+  }, [tasks, filterStatus, filterPriority, searchQuery]);
+
+  // Stats computed from full task list
+  const stats = useMemo<TaskStats>(() => {
+    const now = new Date();
+    return {
+      total: tasks.length,
+      todo: tasks.filter((t) => t.status === 'todo').length,
+      inProgress: tasks.filter((t) => t.status === 'in_progress').length,
+      done: tasks.filter((t) => t.status === 'done').length,
+      overdue: tasks.filter(
+        (t) => t.dueDate && t.status !== 'done' && new Date(t.dueDate) < now
+      ).length,
+    };
+  }, [tasks]);
+
+  // Sidebar task counts (filtered by search but not by status/priority for status counts)
+  const taskCounts = useMemo<Record<TaskStatus | 'all', number>>(() => {
+    const q = searchQuery.toLowerCase();
+    const searched = q
+      ? tasks.filter(
+          (t) =>
+            t.title.toLowerCase().includes(q) ||
+            t.description?.toLowerCase().includes(q) ||
+            t.tags.some((tag) => tag.toLowerCase().includes(q))
+        )
+      : tasks;
+    return {
+      all:         searched.length,
+      todo:        searched.filter((t) => t.status === 'todo').length,
+      in_progress: searched.filter((t) => t.status === 'in_progress').length,
+      done:        searched.filter((t) => t.status === 'done').length,
+    };
+  }, [tasks, searchQuery]);
+
+  const openCreate = (initialStatus?: TaskStatus) =>
+    setModal({ open: true, mode: 'create', initialStatus });
+  const openEdit = (task: Task) => setModal({ open: true, mode: 'edit', task });
+  const closeModal = () => setModal({ open: false, mode: 'create' });
+
+  const handleSave = async (input: CreateTaskInput) => {
+    if (modal.mode === 'create') {
+      await createTask(input);
+    } else if (modal.task) {
+      await updateTask(modal.task._id, input);
+    }
+    closeModal();
+  };
+
+  const handleStatusChange = async (id: string, status: TaskStatus) => {
+    await updateTask(id, { status });
+  };
+
+  const handleQuickCreate = async (title: string, status: TaskStatus) => {
+    await createTask({ title, status, priority: 'medium', tags: [] });
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm('Delete this task?')) {
+      await deleteTask(id);
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="flex flex-col h-screen bg-zinc-950 text-zinc-100">
+      <Header
+        onNewTask={openCreate}
+        onSearch={setSearchQuery}
+        onRefresh={refreshTasks}
+        loading={loading}
+      />
+
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar
+          view={view}
+          onViewChange={setView}
+          filterStatus={filterStatus}
+          onFilterStatus={setFilterStatus}
+          filterPriority={filterPriority}
+          onFilterPriority={setFilterPriority}
+          taskCounts={taskCounts}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+
+        <main className="flex-1 flex flex-col overflow-hidden">
+          {/* Stats + controls */}
+          <div className={`px-6 pt-5 pb-4 border-b border-zinc-800 space-y-4 ${view === 'dashboard' || view === 'calendar' ? 'hidden' : ''}`}>
+            <StatsBar stats={stats} />
+
+            {/* Active filters */}
+            {(filterStatus !== 'all' || filterPriority !== 'all' || searchQuery) && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-zinc-500">Filters:</span>
+                {searchQuery && (
+                  <FilterChip label={`"${searchQuery}"`} onRemove={() => setSearchQuery('')} />
+                )}
+                {filterStatus !== 'all' && (
+                  <FilterChip label={filterStatus.replace('_', ' ')} onRemove={() => setFilterStatus('all')} />
+                )}
+                {filterPriority !== 'all' && (
+                  <FilterChip label={filterPriority} onRemove={() => setFilterPriority('all')} />
+                )}
+                <button
+                  onClick={() => { setFilterStatus('all'); setFilterPriority('all'); setSearchQuery(''); }}
+                  className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Error banner */}
+          {error && (
+            <div className="mx-6 mt-4 flex items-center justify-between gap-3 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2.5">
+              <p className="text-sm text-red-400">{error}</p>
+              <button onClick={clearError} className="text-red-400/60 hover:text-red-400 transition-colors text-sm">✕</button>
+            </div>
+          )}
+
+          {/* Main content */}
+          <div className="flex-1 overflow-y-auto p-6">
+            {loading && tasks.length === 0 ? (
+              <LoadingSkeleton />
+            ) : (
+              <>
+                {view === 'board' && (
+                  <TaskBoard
+                    tasks={filteredTasks}
+                    onEditTask={openEdit}
+                    onDeleteTask={handleDelete}
+                    onStatusChange={handleStatusChange}
+                    onCreateTask={openCreate}
+                    onQuickCreateTask={handleQuickCreate}
+                  />
+                )}
+                {view === 'list' && (
+                  <TaskList
+                    tasks={filteredTasks}
+                    onEditTask={openEdit}
+                    onDeleteTask={handleDelete}
+                    onStatusChange={handleStatusChange}
+                  />
+                )}
+                {view === 'dashboard' && (
+                  <Dashboard
+                    tasks={tasks}
+                    onEditTask={openEdit}
+                  />
+                )}
+                {view === 'calendar' && (
+                  <Calendar
+                    tasks={tasks}
+                    onEditTask={openEdit}
+                  />
+                )}
+              </>
+            )}
+          </div>
+        </main>
+      </div>
+
+      {modal.open && (
+        <TaskModal
+          mode={modal.mode}
+          task={modal.task}
+          initialStatus={modal.initialStatus}
+          onSave={handleSave}
+          onClose={closeModal}
+        />
+      )}
+    </div>
+  );
+}
+
+function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <span className="flex items-center gap-1 text-xs bg-amber-500/15 text-amber-300 border border-amber-500/30 rounded-full px-2 py-0.5">
+      {label}
+      <button onClick={onRemove} className="hover:text-amber-100 transition-colors">✕</button>
+    </span>
+  );
+}
+
+function LoadingSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {[0, 1, 2].map((col) => (
+        <div key={col} className="space-y-3">
+          <div className="h-5 w-24 bg-zinc-800 rounded animate-pulse" />
+          <div className="h-px bg-zinc-800" />
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-2 animate-pulse">
+              <div className="h-1.5 w-12 bg-zinc-800 rounded-full" />
+              <div className="h-4 bg-zinc-800 rounded w-3/4" />
+              <div className="h-3 bg-zinc-800 rounded w-1/2" />
+              <div className="flex gap-1 pt-1">
+                <div className="h-5 w-14 bg-zinc-800 rounded" />
+                <div className="h-5 w-10 bg-zinc-800 rounded" />
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      ))}
     </div>
   );
 }
