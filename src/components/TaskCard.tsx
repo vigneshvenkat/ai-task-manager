@@ -145,7 +145,7 @@ export default function TaskCard({
 
       {/* Hover quick-actions (stop propagation so they don't open edit modal) */}
       <div
-        className="absolute bottom-3 right-3 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute bottom-3 right-3 flex items-center gap-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
         onClick={(e) => e.stopPropagation()}
       >
         {status.next && (

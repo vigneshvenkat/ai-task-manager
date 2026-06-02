@@ -5,9 +5,10 @@ import { useState } from 'react';
 interface HeaderProps {
   onNewTask: () => void;
   onSearch: (query: string) => void;
+  onMenuToggle: () => void;
 }
 
-export default function Header({ onNewTask, onSearch }: HeaderProps) {
+export default function Header({ onNewTask, onSearch, onMenuToggle }: HeaderProps) {
   const [searchValue, setSearchValue] = useState('');
 
   const handleSearch = (value: string) => {
@@ -17,6 +18,17 @@ export default function Header({ onNewTask, onSearch }: HeaderProps) {
 
   return (
     <header className="h-14 shrink-0 flex items-center gap-3 px-4 bg-zinc-950 border-b border-zinc-800/80">
+      {/* Hamburger - mobile only */}
+      <button
+        onClick={onMenuToggle}
+        className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors cursor-pointer"
+        aria-label="Toggle menu"
+      >
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
       {/* Brand */}
       <div className="flex items-center gap-2.5 shrink-0 mr-1">
         <div className="w-7 h-7 rounded-lg bg-amber-600 flex items-center justify-center shadow-lg shadow-amber-900/40">

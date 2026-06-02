@@ -58,8 +58,8 @@ export default function TaskList({ tasks, onEditTask, onDeleteTask, onStatusChan
   return (
     <div className="flex flex-col gap-3">
       <div className="rounded-lg border border-zinc-800 overflow-hidden">
-        {/* Table header */}
-        <div className="grid grid-cols-[1fr_120px_120px_140px_120px_80px] gap-4 px-4 py-2.5 bg-zinc-900 border-b border-zinc-800 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+        {/* Table header — desktop only */}
+        <div className="hidden md:grid grid-cols-[1fr_120px_120px_140px_120px_80px] gap-4 px-4 py-2.5 bg-zinc-900 border-b border-zinc-800 text-xs font-medium text-zinc-500 uppercase tracking-wider">
           <span>Task</span>
           <span>Priority</span>
           <span>Status</span>
@@ -78,84 +78,131 @@ export default function TaskList({ tasks, onEditTask, onDeleteTask, onStatusChan
             return (
               <div
                 key={task._id}
-                className="group grid grid-cols-[1fr_120px_120px_140px_120px_80px] gap-4 px-4 py-3 bg-zinc-900 hover:bg-zinc-800/50 transition-colors cursor-pointer items-center"
+                className="bg-zinc-900 hover:bg-zinc-800/50 transition-colors cursor-pointer"
                 onClick={() => onEditTask(task)}
               >
-                {/* Title + tags */}
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-zinc-100 truncate">{task.title}</p>
-                  {task.description && (
-                    <p className="text-xs text-zinc-500 truncate mt-0.5">{task.description}</p>
-                  )}
+                {/* Mobile card */}
+                <div className="md:hidden p-3.5 space-y-2.5">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-zinc-100 leading-snug">{task.title}</p>
+                    {task.description && (
+                      <p className="text-xs text-zinc-500 mt-0.5 line-clamp-1">{task.description}</p>
+                    )}
+                  </div>
                   {task.tags.length > 0 && (
-                    <div className="flex gap-1 mt-1 flex-wrap">
+                    <div className="flex gap-1 flex-wrap">
                       {task.tags.slice(0, 3).map((tag) => (
-                        <span key={tag} className="text-xs bg-zinc-800 text-zinc-400 border border-zinc-700 rounded px-1.5 py-px">
-                          {tag}
-                        </span>
+                        <span key={tag} className="text-xs bg-zinc-800 text-zinc-400 border border-zinc-700 rounded px-1.5 py-px">{tag}</span>
                       ))}
                     </div>
                   )}
-                </div>
-
-                {/* Priority */}
-                <div>
-                  <span className={`inline-flex items-center gap-1 text-xs border rounded px-1.5 py-0.5 ${priority.badge}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${priority.dot}`} />
-                    {priority.label}
-                  </span>
-                </div>
-
-                {/* Status */}
-                <div>
-                  <span className={`inline-flex text-xs border rounded px-1.5 py-0.5 ${status.badge}`}>
-                    {status.label}
-                  </span>
-                </div>
-
-                {/* Assignee */}
-                <div className="flex items-center gap-1.5 min-w-0">
-                  {task.assignee ? (
-                    <>
-                      <div className="w-5 h-5 shrink-0 rounded-full bg-amber-600 flex items-center justify-center text-xs font-medium text-white">
-                        {task.assignee.charAt(0).toUpperCase()}
-                      </div>
-                      <span className="text-xs text-zinc-400 truncate">{task.assignee}</span>
-                    </>
-                  ) : (
-                    <span className="text-xs text-zinc-600">Unassigned</span>
-                  )}
-                </div>
-
-                {/* Due date */}
-                <div>
-                  <span className={`text-xs ${overdue ? 'text-red-400' : 'text-zinc-500'}`}>
-                    {overdue && '⚠ '}
-                    {formatDate(task.dueDate)}
-                  </span>
-                </div>
-
-                {/* Actions */}
-                <div
-                  className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {status.next && (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`inline-flex items-center gap-1 text-xs border rounded px-1.5 py-0.5 ${priority.badge}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${priority.dot}`} />
+                      {priority.label}
+                    </span>
+                    <span className={`inline-flex text-xs border rounded px-1.5 py-0.5 ${status.badge}`}>
+                      {status.label}
+                    </span>
+                    {task.assignee && (
+                      <span className="flex items-center gap-1 text-xs text-zinc-400">
+                        <span className="w-4 h-4 rounded-full bg-amber-600 flex items-center justify-center text-[10px] font-medium text-white shrink-0">
+                          {task.assignee.charAt(0).toUpperCase()}
+                        </span>
+                        {task.assignee}
+                      </span>
+                    )}
+                    {task.dueDate && (
+                      <span className={`text-xs ${overdue ? 'text-red-400' : 'text-zinc-500'}`}>
+                        {overdue && '⚠ '}{formatDate(task.dueDate)}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 pt-0.5" onClick={(e) => e.stopPropagation()}>
+                    {status.next && (
+                      <button
+                        onClick={() => onStatusChange(task._id, status.next!)}
+                        className="text-xs text-zinc-500 hover:text-amber-400 transition-colors px-2 py-1 rounded hover:bg-amber-500/10 border border-zinc-700 hover:border-amber-500/30"
+                      >
+                        → {statusConfig[status.next!].label}
+                      </button>
+                    )}
                     <button
-                      onClick={() => onStatusChange(task._id, status.next!)}
-                      className="text-xs text-zinc-400 hover:text-amber-400 transition-colors px-1.5 py-1 rounded hover:bg-amber-500/10"
-                      title={`Move to ${statusConfig[status.next!].label}`}
+                      onClick={() => onDeleteTask(task._id)}
+                      className="text-xs text-zinc-600 hover:text-red-400 transition-colors px-2 py-1 rounded hover:bg-red-500/10 border border-zinc-700 hover:border-red-500/30"
                     >
-                      →
+                      Delete
                     </button>
-                  )}
-                  <button
-                    onClick={() => onDeleteTask(task._id)}
-                    className="text-xs text-zinc-600 hover:text-red-400 transition-colors px-1.5 py-1 rounded hover:bg-red-500/10"
-                    title="Delete task"
+                  </div>
+                </div>
+
+                {/* Desktop table row */}
+                <div className="group hidden md:grid grid-cols-[1fr_120px_120px_140px_120px_80px] gap-4 px-4 py-3 items-center">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-zinc-100 truncate">{task.title}</p>
+                    {task.description && (
+                      <p className="text-xs text-zinc-500 truncate mt-0.5">{task.description}</p>
+                    )}
+                    {task.tags.length > 0 && (
+                      <div className="flex gap-1 mt-1 flex-wrap">
+                        {task.tags.slice(0, 3).map((tag) => (
+                          <span key={tag} className="text-xs bg-zinc-800 text-zinc-400 border border-zinc-700 rounded px-1.5 py-px">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <span className={`inline-flex items-center gap-1 text-xs border rounded px-1.5 py-0.5 ${priority.badge}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${priority.dot}`} />
+                      {priority.label}
+                    </span>
+                  </div>
+                  <div>
+                    <span className={`inline-flex text-xs border rounded px-1.5 py-0.5 ${status.badge}`}>
+                      {status.label}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    {task.assignee ? (
+                      <>
+                        <div className="w-5 h-5 shrink-0 rounded-full bg-amber-600 flex items-center justify-center text-xs font-medium text-white">
+                          {task.assignee.charAt(0).toUpperCase()}
+                        </div>
+                        <span className="text-xs text-zinc-400 truncate">{task.assignee}</span>
+                      </>
+                    ) : (
+                      <span className="text-xs text-zinc-600">Unassigned</span>
+                    )}
+                  </div>
+                  <div>
+                    <span className={`text-xs ${overdue ? 'text-red-400' : 'text-zinc-500'}`}>
+                      {overdue && '⚠ '}
+                      {formatDate(task.dueDate)}
+                    </span>
+                  </div>
+                  <div
+                    className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    ✕
-                  </button>
+                    {status.next && (
+                      <button
+                        onClick={() => onStatusChange(task._id, status.next!)}
+                        className="text-xs text-zinc-400 hover:text-amber-400 transition-colors px-1.5 py-1 rounded hover:bg-amber-500/10"
+                        title={`Move to ${statusConfig[status.next!].label}`}
+                      >
+                        →
+                      </button>
+                    )}
+                    <button
+                      onClick={() => onDeleteTask(task._id)}
+                      className="text-xs text-zinc-600 hover:text-red-400 transition-colors px-1.5 py-1 rounded hover:bg-red-500/10"
+                      title="Delete task"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
               </div>
             );

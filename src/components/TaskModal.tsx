@@ -142,12 +142,12 @@ export default function TaskModal({ mode, task, initialStatus, onSave, onClose }
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/70 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="w-full max-w-4xl max-h-[90vh] bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl flex flex-col overflow-hidden">
+      <div className="w-full sm:max-w-4xl h-[92vh] sm:h-auto sm:max-h-[90vh] bg-zinc-900 border-t sm:border border-zinc-800 rounded-t-2xl sm:rounded-xl shadow-2xl flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-zinc-800">
           <h2 className="text-base font-semibold text-zinc-100">
             {mode === 'create' ? 'Create New Task' : 'Edit Task'}
           </h2>
@@ -160,9 +160,9 @@ export default function TaskModal({ mode, task, initialStatus, onSave, onClose }
         </div>
 
         {/* Body */}
-        <div className="flex flex-1 overflow-hidden divide-x divide-zinc-800">
+        <div className="flex flex-col sm:flex-row flex-1 min-h-0 overflow-y-auto sm:overflow-hidden sm:divide-x divide-zinc-800">
           {/* Left: Form */}
-          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
+          <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-5 sm:flex-1 sm:overflow-y-auto">
             {/* Title */}
             <div>
               <label className="block text-xs font-medium text-zinc-400 mb-1.5">
@@ -278,7 +278,7 @@ export default function TaskModal({ mode, task, initialStatus, onSave, onClose }
           </form>
 
           {/* Right: AI Panel */}
-          <div className="w-80 shrink-0 flex flex-col overflow-y-auto p-5 space-y-4 bg-zinc-950/50">
+          <div className="w-full sm:w-80 shrink-0 flex flex-col sm:overflow-y-auto p-5 space-y-4 bg-zinc-950/50 border-t sm:border-t-0 border-zinc-800">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-md bg-amber-600 flex items-center justify-center text-xs">✦</div>
               <span className="text-sm font-medium text-zinc-300">AI Assistant</span>

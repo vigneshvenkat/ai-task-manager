@@ -27,6 +27,7 @@ export default function HomePage() {
   const [filterPriority, setFilterPriority] = useState<TaskPriority | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [modal, setModal] = useState<ModalState>({ open: false, mode: 'create' });
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Filtered task list
   const filteredTasks = useMemo(() => {
@@ -112,16 +113,19 @@ export default function HomePage() {
       <Header
         onNewTask={openCreate}
         onSearch={setSearchQuery}
+        onMenuToggle={() => setSidebarOpen(o => !o)}
       />
 
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
           view={view}
-          onViewChange={setView}
+          onViewChange={(v) => { setView(v); setSidebarOpen(false); }}
           filterStatus={filterStatus}
-          onFilterStatus={setFilterStatus}
+          onFilterStatus={(s) => { setFilterStatus(s); setSidebarOpen(false); }}
           filterPriority={filterPriority}
-          onFilterPriority={setFilterPriority}
+          onFilterPriority={(p) => { setFilterPriority(p); setSidebarOpen(false); }}
           taskCounts={taskCounts}
         />
 

@@ -71,7 +71,7 @@ export default function Pagination({
 
         {items.map((item, i) =>
           item === 'left-ellipsis' || item === 'right-ellipsis' ? (
-            <span key={item + i} className="min-w-[30px] h-[30px] flex items-center justify-center text-xs text-zinc-600">
+            <span key={item + i} className="min-w-7.5 h-7.5 flex items-center justify-center text-xs text-zinc-600">
               …
             </span>
           ) : (
@@ -105,7 +105,7 @@ export default function Pagination({
           <select
             value={pageSize}
             onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            className="h-[30px] bg-zinc-800 border border-zinc-700 rounded-lg px-2 text-xs text-zinc-300 focus:outline-none focus:ring-1 focus:border-amber-500/50 focus:ring-amber-500/30 transition-colors cursor-pointer"
+            className="h-7.5 bg-zinc-800 border border-zinc-700 rounded-lg px-2 text-xs text-zinc-300 focus:outline-none focus:ring-1 focus:border-amber-500/50 focus:ring-amber-500/30 transition-colors cursor-pointer"
           >
             {pageSizeOptions.map(s => (
               <option key={s} value={s}>{s}</option>

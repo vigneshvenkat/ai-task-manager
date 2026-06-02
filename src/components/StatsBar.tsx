@@ -34,7 +34,7 @@ export default function StatsBar({ stats }: StatsBarProps) {
       )}
 
       {stats.total > 0 && (
-        <div className="ml-auto flex items-center gap-2.5 min-w-32">
+        <div className="flex items-center gap-2.5 w-full sm:w-32 sm:ml-auto">
           <div className="w-full">
             <div className="flex justify-between text-xs mb-1">
               <span className="text-zinc-600">Completion</span>

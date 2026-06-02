@@ -118,7 +118,8 @@ export default function Calendar({ tasks, onEditTask }: CalendarProps) {
       </div>
 
       {/* Calendar grid */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+      <div className="overflow-x-auto -mx-1 px-1">
+      <div className="min-w-140 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
         {/* Day-of-week headers */}
         <div className="grid grid-cols-7 border-b border-zinc-800">
           {DAYS.map(day => (
@@ -198,6 +199,7 @@ export default function Calendar({ tasks, onEditTask }: CalendarProps) {
           })}
         </div>
       </div>
+      </div>{/* end overflow-x-auto */}
 
       {/* Tasks with no due date */}
       {undated.length > 0 && (

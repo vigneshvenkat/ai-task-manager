@@ -3,6 +3,8 @@
 import type { TaskPriority, TaskStatus, ViewMode } from '@/types';
 
 interface SidebarProps {
+  open: boolean;
+  onClose: () => void;
   view: ViewMode;
   onViewChange: (view: ViewMode) => void;
   filterStatus: TaskStatus | 'all';
@@ -67,6 +69,8 @@ const priorityItems: { value: TaskPriority | 'all'; label: string; color?: strin
 ];
 
 export default function Sidebar({
+  open,
+  onClose,
   view,
   onViewChange,
   filterStatus,
@@ -76,7 +80,21 @@ export default function Sidebar({
   taskCounts,
 }: SidebarProps) {
   return (
-    <aside className="w-52 shrink-0 flex flex-col bg-zinc-950 border-r border-zinc-800/80 overflow-y-auto">
+    <>
+      {/* Mobile backdrop */}
+      <div
+        className={`fixed inset-0 z-30 bg-black/60 transition-opacity md:hidden ${
+          open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={onClose}
+      />
+
+      <aside className={`
+        fixed inset-y-0 left-0 z-40 w-64 flex flex-col bg-zinc-950 border-r border-zinc-800/80 overflow-y-auto
+        transition-transform duration-200 ease-in-out
+        ${open ? 'translate-x-0' : '-translate-x-full'}
+        md:relative md:inset-auto md:z-auto md:w-52 md:shrink-0 md:translate-x-0
+      `}>
       {/* Views */}
       <section className="px-3 pt-5 pb-4">
         <p className="text-[10px] font-semibold text-zinc-600 uppercase tracking-widest px-2 mb-2">
@@ -176,6 +194,7 @@ export default function Sidebar({
         </ul>
       </section>}
 
-    </aside>
+      </aside>
+    </>
   );
 }
